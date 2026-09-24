@@ -38,7 +38,7 @@ const Navbar = () => {
   );
 
   return (
-    <header className="border-t border-[#202124] bg-[#0C0D0F] text-[#A7A9B0]">
+    <header className="sticky top-0 z-50 shadow-md border-t border-[#202124] bg-[#0C0D0F] text-[#A7A9B0]">
       <div className="navbar mx-auto min-h-22 max-w-375 px-4 sm:px-6 lg:px-8 ">
         {/* ==================== LEFT ==================== */}
         <div className="navbar-start">

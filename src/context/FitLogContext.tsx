@@ -12,42 +12,41 @@ import {
 import type { WorkoutTypes } from "@/types/workoutType";
 
 interface FitLogContextType {
-  // API data
   workouts: WorkoutTypes[];
   loading: boolean;
   error: string | null;
 
-  // Client-side data
   planIds: number[];
   savedIds: number[];
 
-  // Plan actions
   addToPlan: (id: number) => void;
   removeFromPlan: (id: number) => void;
   isInPlan: (id: number) => boolean;
 
-  // Saved actions
   addToSaved: (id: number) => void;
   removeFromSaved: (id: number) => void;
   isSaved: (id: number) => boolean;
 
-  // Derived data
   planWorkouts: WorkoutTypes[];
   savedWorkouts: WorkoutTypes[];
 }
 
-const FitLogContext = createContext<FitLogContextType | undefined>(
-  undefined
-);
+const FitLogContext = createContext<
+  FitLogContextType | undefined
+>(undefined);
 
-const API_URL = "https://api.abcz.workers.dev/api/fitlog";
+const API_URL =
+  "https://api.abcz.workers.dev/api/fitlog";
 
 const FitLogProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [workouts, setWorkouts] = useState<WorkoutTypes[]>([]);
+  const [workouts, setWorkouts] = useState<WorkoutTypes[]>(
+    []
+  );
+
   const [planIds, setPlanIds] = useState<number[]>(() => {
     if (typeof window === "undefined") return [];
 
@@ -55,7 +54,6 @@ const FitLogProvider = ({
       const storedPlan = localStorage.getItem("fitlog-plan");
       return storedPlan ? JSON.parse(storedPlan) : [];
     } catch {
-      localStorage.removeItem("fitlog-plan");
       return [];
     }
   });
@@ -66,38 +64,41 @@ const FitLogProvider = ({
       const storedSaved = localStorage.getItem("fitlog-saved");
       return storedSaved ? JSON.parse(storedSaved) : [];
     } catch {
-      localStorage.removeItem("fitlog-saved");
       return [];
     }
   });
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    null
+  );
+
+  const [hydrated] = useState(true);
 
   // ----------------------------------------
-  // Fetch workouts from API
+  // Fetch API data
   // ----------------------------------------
 
   useEffect(() => {
     const fetchWorkouts = async () => {
       try {
         setLoading(true);
-        setError(null);
 
         const response = await fetch(API_URL);
 
         if (!response.ok) {
-          throw new Error("Failed to fetch workouts.");
+          throw new Error("Failed to fetch workouts");
         }
 
-        const data: WorkoutTypes[] = await response.json();
+        const data: WorkoutTypes[] =
+          await response.json();
 
         setWorkouts(data);
       } catch (error) {
         setError(
           error instanceof Error
             ? error.message
-            : "Something went wrong."
+            : "Something went wrong"
         );
       } finally {
         setLoading(false);
@@ -108,28 +109,42 @@ const FitLogProvider = ({
   }, []);
 
   // ----------------------------------------
-  // Persist plan
+  // Save plan
   // ----------------------------------------
 
   useEffect(() => {
-    localStorage.setItem("fitlog-plan", JSON.stringify(planIds));
-  }, [planIds]);
+    if (!hydrated) return;
+
+    localStorage.setItem(
+      "fitlog-plan",
+      JSON.stringify(planIds)
+    );
+  }, [planIds, hydrated]);
 
   // ----------------------------------------
-  // Persist saved
+  // Save saved workouts
   // ----------------------------------------
 
   useEffect(() => {
-    localStorage.setItem("fitlog-saved", JSON.stringify(savedIds));
-  }, [savedIds]);
+    if (!hydrated) return;
+
+    localStorage.setItem(
+      "fitlog-saved",
+      JSON.stringify(savedIds)
+    );
+  }, [savedIds, hydrated]);
 
   // ----------------------------------------
-  // Plan
+  // Plan actions
   // ----------------------------------------
 
   const addToPlan = useCallback((id: number) => {
     setPlanIds((current) => {
       if (current.includes(id)) {
+        return current;
+      }
+
+      if (current.length >= 5) {
         return current;
       }
 
@@ -149,7 +164,7 @@ const FitLogProvider = ({
   );
 
   // ----------------------------------------
-  // Saved
+  // Saved actions
   // ----------------------------------------
 
   const addToSaved = useCallback((id: number) => {
@@ -174,7 +189,7 @@ const FitLogProvider = ({
   );
 
   // ----------------------------------------
-  // Derived workout lists
+  // Derived data
   // ----------------------------------------
 
   const planWorkouts = useMemo(() => {
@@ -238,10 +253,6 @@ const FitLogProvider = ({
 };
 
 export default FitLogProvider;
-
-// ----------------------------------------
-// Custom Hook
-// ----------------------------------------
 
 export const useFitLog = () => {
   const context = useContext(FitLogContext);

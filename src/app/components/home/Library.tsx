@@ -1,6 +1,6 @@
 "use client";
 import { useFitLog } from "@/context/FitLogContext";
-import WorkoutCard from "./WorkoutCard";
+import WorkoutCard from "../workout/WorkoutCard";
 
 const Library = () => {
 
