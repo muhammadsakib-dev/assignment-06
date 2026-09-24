@@ -13,7 +13,7 @@ const Library = () => {
   }
 
   return (
-    <div className="mx-auto max-w-375 px-4 py-6 sm:px-6 lg:max-w-1450 lg:px-8 mb-16">
+    <div id="workouts" className="mx-auto max-w-375 px-4 py-6 sm:px-6 lg:max-w-1450 lg:px-8 mb-16">
       <div className="mb-8 ">
         <h3 className="text-4xl font-bold text-white">THE LIBRARY</h3>
         <p>Twelve lifts covering every major muscle group.</p>

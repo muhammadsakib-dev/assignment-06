@@ -18,6 +18,7 @@ interface FitLogContextType {
 
   planIds: number[];
   savedIds: number[];
+  completedIds: number[];
 
   addToPlan: (id: number) => void;
   removeFromPlan: (id: number) => void;
@@ -27,57 +28,61 @@ interface FitLogContextType {
   removeFromSaved: (id: number) => void;
   isSaved: (id: number) => boolean;
 
+  markAsDone: (id: number) => void;
+  isCompleted: (id: number) => boolean;
+
   planWorkouts: WorkoutTypes[];
   savedWorkouts: WorkoutTypes[];
 }
 
-const FitLogContext = createContext<
-  FitLogContextType | undefined
->(undefined);
+const FitLogContext = createContext<FitLogContextType | undefined>(undefined);
 
-const API_URL =
-  "https://api.abcz.workers.dev/api/fitlog";
+const API_URL = "https://api.abcz.workers.dev/api/fitlog";
 
-const FitLogProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [workouts, setWorkouts] = useState<WorkoutTypes[]>(
-    []
-  );
+const readStoredIds = (key: string): number[] => {
+  if (typeof window === "undefined") {
+    return [];
+  }
 
-  const [planIds, setPlanIds] = useState<number[]>(() => {
-    if (typeof window === "undefined") return [];
+  try {
+    const storedValue = window.localStorage.getItem(key);
 
-    try {
-      const storedPlan = localStorage.getItem("fitlog-plan");
-      return storedPlan ? JSON.parse(storedPlan) : [];
-    } catch {
+    if (!storedValue) {
       return [];
     }
-  });
-  const [savedIds, setSavedIds] = useState<number[]>(() => {
-    if (typeof window === "undefined") return [];
 
-    try {
-      const storedSaved = localStorage.getItem("fitlog-saved");
-      return storedSaved ? JSON.parse(storedSaved) : [];
-    } catch {
+    const parsed = JSON.parse(storedValue);
+
+    if (!Array.isArray(parsed)) {
       return [];
     }
-  });
+
+    return parsed.filter((value): value is number => typeof value === "number");
+  } catch {
+    return [];
+  }
+};
+
+const FitLogProvider = ({ children }: { children: React.ReactNode }) => {
+  const [workouts, setWorkouts] = useState<WorkoutTypes[]>([]);
+  const [planIds, setPlanIds] = useState<number[]>([]);
+  const [savedIds, setSavedIds] = useState<number[]>([]);
+  const [completedIds, setCompletedIds] = useState<number[]>([]);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(
-    null
-  );
+  const [error, setError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
-  const [hydrated] = useState(true);
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
 
-  // ----------------------------------------
-  // Fetch API data
-  // ----------------------------------------
+    setPlanIds(readStoredIds("fitlog-plan"));
+    setSavedIds(readStoredIds("fitlog-saved"));
+    setCompletedIds(readStoredIds("fitlog-completed"));
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     const fetchWorkouts = async () => {
@@ -90,15 +95,13 @@ const FitLogProvider = ({
           throw new Error("Failed to fetch workouts");
         }
 
-        const data: WorkoutTypes[] =
-          await response.json();
-
+        const data: WorkoutTypes[] = await response.json();
         setWorkouts(data);
-      } catch (error) {
+      } catch (caughtError) {
         setError(
-          error instanceof Error
-            ? error.message
-            : "Something went wrong"
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Something went wrong",
         );
       } finally {
         setLoading(false);
@@ -108,43 +111,36 @@ const FitLogProvider = ({
     fetchWorkouts();
   }, []);
 
-  // ----------------------------------------
-  // Save plan
-  // ----------------------------------------
+  useEffect(() => {
+    if (!hydrated || typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem("fitlog-plan", JSON.stringify(planIds));
+  }, [hydrated, planIds]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || typeof window === "undefined") {
+      return;
+    }
 
-    localStorage.setItem(
-      "fitlog-plan",
-      JSON.stringify(planIds)
-    );
-  }, [planIds, hydrated]);
-
-  // ----------------------------------------
-  // Save saved workouts
-  // ----------------------------------------
+    window.localStorage.setItem("fitlog-saved", JSON.stringify(savedIds));
+  }, [hydrated, savedIds]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || typeof window === "undefined") {
+      return;
+    }
 
-    localStorage.setItem(
-      "fitlog-saved",
-      JSON.stringify(savedIds)
+    window.localStorage.setItem(
+      "fitlog-completed",
+      JSON.stringify(completedIds),
     );
-  }, [savedIds, hydrated]);
-
-  // ----------------------------------------
-  // Plan actions
-  // ----------------------------------------
+  }, [completedIds, hydrated]);
 
   const addToPlan = useCallback((id: number) => {
     setPlanIds((current) => {
-      if (current.includes(id)) {
-        return current;
-      }
-
-      if (current.length >= 5) {
+      if (current.includes(id) || current.length >= 5) {
         return current;
       }
 
@@ -153,19 +149,10 @@ const FitLogProvider = ({
   }, []);
 
   const removeFromPlan = useCallback((id: number) => {
-    setPlanIds((current) =>
-      current.filter((workoutId) => workoutId !== id)
-    );
+    setPlanIds((current) => current.filter((workoutId) => workoutId !== id));
   }, []);
 
-  const isInPlan = useCallback(
-    (id: number) => planIds.includes(id),
-    [planIds]
-  );
-
-  // ----------------------------------------
-  // Saved actions
-  // ----------------------------------------
+  const isInPlan = useCallback((id: number) => planIds.includes(id), [planIds]);
 
   const addToSaved = useCallback((id: number) => {
     setSavedIds((current) => {
@@ -178,77 +165,80 @@ const FitLogProvider = ({
   }, []);
 
   const removeFromSaved = useCallback((id: number) => {
-    setSavedIds((current) =>
-      current.filter((workoutId) => workoutId !== id)
-    );
+    setSavedIds((current) => current.filter((workoutId) => workoutId !== id));
   }, []);
 
   const isSaved = useCallback(
     (id: number) => savedIds.includes(id),
-    [savedIds]
+    [savedIds],
   );
 
-  // ----------------------------------------
-  // Derived data
-  // ----------------------------------------
+  const markAsDone = useCallback((id: number) => {
+    setCompletedIds((current) => {
+      if (current.includes(id)) {
+        return current;
+      }
 
-  const planWorkouts = useMemo(() => {
-    return workouts.filter((workout) =>
-      planIds.includes(workout.id)
-    );
-  }, [workouts, planIds]);
+      return [...current, id];
+    });
+  }, []);
 
-  const savedWorkouts = useMemo(() => {
-    return workouts.filter((workout) =>
-      savedIds.includes(workout.id)
-    );
-  }, [workouts, savedIds]);
+  const isCompleted = useCallback(
+    (id: number) => completedIds.includes(id),
+    [completedIds],
+  );
 
-  // ----------------------------------------
-  // Context value
-  // ----------------------------------------
+  const planWorkouts = useMemo(
+    () => workouts.filter((workout) => planIds.includes(workout.id)),
+    [planIds, workouts],
+  );
+
+  const savedWorkouts = useMemo(
+    () => workouts.filter((workout) => savedIds.includes(workout.id)),
+    [savedIds, workouts],
+  );
 
   const value = useMemo(
     () => ({
       workouts,
       loading,
       error,
-
       planIds,
       savedIds,
-
+      completedIds,
       addToPlan,
       removeFromPlan,
       isInPlan,
-
       addToSaved,
       removeFromSaved,
       isSaved,
-
+      markAsDone,
+      isCompleted,
       planWorkouts,
       savedWorkouts,
     }),
     [
-      workouts,
-      loading,
-      error,
-      planIds,
-      savedIds,
       addToPlan,
-      removeFromPlan,
-      isInPlan,
       addToSaved,
-      removeFromSaved,
+      completedIds,
+      error,
+      isCompleted,
+      isInPlan,
       isSaved,
+      loading,
+      markAsDone,
+      planIds,
       planWorkouts,
+      removeFromPlan,
+      removeFromSaved,
+      savedIds,
       savedWorkouts,
-    ]
+      workouts,
+    ],
   );
 
   return (
-    <FitLogContext.Provider value={value}>
-      {children}
-    </FitLogContext.Provider>
+    <FitLogContext.Provider value={value}>{children}</FitLogContext.Provider>
   );
 };
 
@@ -258,9 +248,7 @@ export const useFitLog = () => {
   const context = useContext(FitLogContext);
 
   if (!context) {
-    throw new Error(
-      "useFitLog must be used inside FitLogProvider"
-    );
+    throw new Error("useFitLog must be used inside FitLogProvider");
   }
 
   return context;

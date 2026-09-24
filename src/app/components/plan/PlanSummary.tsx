@@ -1,30 +1,23 @@
 "use client";
 
 import { useFitLog } from "@/context/FitLogContext";
+import { usePathname } from "next/navigation";
 
-type Tab = "plan" | "saved";
-
-interface PlanSummaryProps {
-  activeTab: Tab;
-}
-
-const PlanSummary = ({ activeTab }: PlanSummaryProps) => {
+const PlanSummary = () => {
+  const pathname = usePathname();
   const { planWorkouts, savedWorkouts } = useFitLog();
 
-  // Select data based on active tab
   const selectedWorkouts =
-    activeTab === "plan" ? planWorkouts : savedWorkouts;
+    pathname === "/my-plan/saved" ? savedWorkouts : planWorkouts;
 
-  // Total minutes
   const totalMinutes = selectedWorkouts.reduce(
     (total, workout) => total + workout.duration,
-    0
+    0,
   );
 
-  // Total calories
   const totalCalories = selectedWorkouts.reduce(
     (total, workout) => total + workout.caloriesBurned,
-    0
+    0,
   );
 
   return (
@@ -34,16 +27,8 @@ const PlanSummary = ({ activeTab }: PlanSummaryProps) => {
         value={selectedWorkouts.length}
         highlight
       />
-
-      <SummaryItem
-        label="Minutes"
-        value={totalMinutes}
-      />
-
-      <SummaryItem
-        label="Calories"
-        value={totalCalories}
-      />
+      <SummaryItem label="Minutes" value={totalMinutes} />
+      <SummaryItem label="Calories" value={totalCalories} />
     </section>
   );
 };
@@ -54,22 +39,15 @@ interface SummaryItemProps {
   highlight?: boolean;
 }
 
-const SummaryItem = ({
-  label,
-  value,
-  highlight = false,
-}: SummaryItemProps) => {
+const SummaryItem = ({ label, value, highlight = false }: SummaryItemProps) => {
   return (
     <div className="border-r border-[#24272E] px-4 py-5 last:border-r-0 sm:px-6">
       <p className="text-[9px] uppercase tracking-wide text-[#6D7480]">
         {label}
       </p>
-
       <p
         className={`mt-1 font-oswald text-3xl font-bold leading-none ${
-          highlight
-            ? "text-(--primary-color)"
-            : "text-white"
+          highlight ? "text-(--primary-color)" : "text-white"
         }`}
       >
         {value}

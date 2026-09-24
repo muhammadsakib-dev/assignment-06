@@ -1,11 +1,19 @@
+"use client";
 import Image from "next/image";
-import Link from "next/link";
+
 
 const Hero = () => {
+  const handleBrowseWorkouts = () => {
+  document
+    .getElementById("workouts")
+    ?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+};
   return (
     <section className="flex min-h-[calc(100vh-88px)] items-center px-4 py-6 sm:px-6 lg:px-8">
       <div className="relative mx-auto flex w-full max-w-362.5 overflow-hidden rounded-3xl border border-[#25282F] bg-[#15171D]">
-        {/* Left Content */}
         <div className="flex w-full items-center px-8 py-14 sm:px-12 lg:w-[58%] lg:px-16">
           <div className="max-w-2xl">
             <p className="mb-5 text-sm font-bold tracking-[0.12em] text-(--primary-color)">
@@ -23,16 +31,16 @@ const Hero = () => {
               into today&apos;s plan, and watch the week&apos;s work add up.
             </p>
 
-            <Link
-              href="/"
+            <button
+            type="button"
+              onClick={handleBrowseWorkouts}
               className="mt-8 inline-flex h-12 items-center rounded-lg bg-(--primary-color) px-7 text-sm font-bold uppercase tracking-wide text-black transition hover:brightness-90"
             >
               Browse Workouts
-            </Link>
+            </button>
           </div>
         </div>
 
-        {/* Right Image */}
         <div className="absolute inset-y-0 right-0 hidden w-[42%] items-center justify-center lg:flex">
           <Image
             src="/banner.png"
@@ -44,7 +52,6 @@ const Hero = () => {
           />
         </div>
 
-        {/* Mobile Image */}
         <div className="absolute bottom-0 right-0 h-64 w-64 opacity-15 sm:h-72 sm:w-72 lg:hidden">
           <Image
             src="/banner.png"

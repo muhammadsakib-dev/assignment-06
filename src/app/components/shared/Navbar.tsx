@@ -1,11 +1,11 @@
 "use client";
+
 import { useFitLog } from "@/context/FitLogContext";
-import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
-    
   const pathname = usePathname();
   const { planIds, savedIds } = useFitLog();
   const navItemStyle = "btn btn-ghost rounded-full px-5 text-sm font-medium";
@@ -17,19 +17,15 @@ const Navbar = () => {
       <li>
         <Link
           href="/"
-          className={`${navItemStyle} ${
-            pathname === "/" ? activeNavStyle : ""
-          }`}
+          className={`${navItemStyle} ${pathname === "/" ? activeNavStyle : ""}`}
         >
           Workouts
         </Link>
       </li>
       <li>
         <Link
-          href="/my-plan"
-          className={`${navItemStyle} ${
-            pathname === "/my-plan" ? activeNavStyle : ""
-          }`}
+          href="/my-plan/today-plan"
+          className={`${navItemStyle} ${pathname.startsWith("/my-plan") ? activeNavStyle : ""}`}
         >
           My Plan
         </Link>
@@ -38,11 +34,9 @@ const Navbar = () => {
   );
 
   return (
-    <header className="sticky top-0 z-50 shadow-md border-t border-[#202124] bg-[#0C0D0F] text-[#A7A9B0]">
-      <div className="navbar mx-auto min-h-22 max-w-375 px-4 sm:px-6 lg:px-8 ">
-        {/* ==================== LEFT ==================== */}
+    <header className="sticky top-0 z-50 border-t border-[#202124] bg-[#0C0D0F] text-[#A7A9B0] shadow-md">
+      <div className="navbar mx-auto min-h-22 max-w-375 px-4 sm:px-6 lg:px-8">
         <div className="navbar-start">
-          {/* Mobile Menu */}
           <div className="dropdown lg:hidden">
             <div
               tabIndex={0}
@@ -74,7 +68,6 @@ const Navbar = () => {
             </ul>
           </div>
 
-          {/* Logo */}
           <Link
             href="/"
             className="btn btn-ghost gap-2 px-2 text-xl hover:bg-transparent"
@@ -86,41 +79,34 @@ const Navbar = () => {
               height={32}
               priority
             />
-
             <span className="font-oswald font-bold tracking-wide text-white">
               FITLOG
             </span>
           </Link>
         </div>
 
-        {/* ==================== CENTER ==================== */}
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal items-center gap-1 p-0">
             {navItems}
           </ul>
         </div>
 
-        {/* ==================== RIGHT ==================== */}
         <div className="navbar-end gap-1 sm:gap-3">
-          {/* Plan */}
           <Link
-            href="/my-plan"
+            href="/my-plan/today-plan"
             className="flex items-center gap-2 px-2 py-2 text-sm font-medium transition-colors hover:text-white sm:px-3"
           >
             <span>Plan</span>
-
             <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-(--primary-color) px-1.5 text-xs font-bold text-black">
               {planIds.length}
             </span>
           </Link>
 
-          {/* Saved */}
           <Link
-            href="/my-plan"
+            href="/my-plan/saved"
             className="flex items-center gap-2 px-2 py-2 text-sm font-medium transition-colors hover:text-white sm:px-3"
           >
             <span>Saved</span>
-
             <span className="flex h-6 min-w-6 items-center justify-center rounded-full border border-[#34363C] px-1.5 text-xs text-[#A7A9B0]">
               {savedIds.length}
             </span>

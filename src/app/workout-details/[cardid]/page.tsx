@@ -1,7 +1,10 @@
-import WorkoutDetails from "@/app/components/workout/WorkoutDetails";
+import { redirect } from "next/navigation";
 
-const CardDetails = () => {
-  return <WorkoutDetails />;
-};
-
-export default CardDetails;
+export default async function LegacyWorkoutDetailsPage({
+  params,
+}: {
+  params: Promise<{ cardid: string }>;
+}) {
+  const { cardid } = await params;
+  redirect(`/workouts/${cardid}`);
+}

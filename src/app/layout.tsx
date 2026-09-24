@@ -36,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body
-        className={`${inter.variable} ${oswald.variable} min-h-full flex flex-col`}
+        className={`${inter.variable} ${oswald.variable} min-h-full flex flex-col scroll-smooth`}
       >
         <FitLogProvider>
           <Navbar />

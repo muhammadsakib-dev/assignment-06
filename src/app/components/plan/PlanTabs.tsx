@@ -1,41 +1,37 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-type Tab = "plan" | "saved";
+const PlanTabs = () => {
+  const pathname = usePathname();
 
-interface PlanTabsProps {
-  activeTab: Tab;
-  onTabChange: (tab: Tab) => void;
-}
+  const isTodayPlan = pathname === "/my-plan/today-plan";
+  const isSaved = pathname === "/my-plan/saved";
 
-const PlanTabs = ({
-  activeTab,
-  onTabChange,
-}: PlanTabsProps) => {
   return (
     <div className="flex rounded-lg border border-[#252930] bg-[#15181E] p-1">
-      <button
-        type="button"
-        onClick={() => onTabChange("plan")}
-        className={`rounded-md px-4 py-1.5 text-[11px] font-medium ${
-          activeTab === "plan"
+      <Link
+        href="/my-plan/today-plan"
+        className={`rounded-md px-4 py-1.5 text-[11px] font-medium transition-colors ${
+          isTodayPlan
             ? "bg-[#252A31] text-white"
-            : "text-[#757C87]"
+            : "text-[#757C87] hover:text-white"
         }`}
       >
         Today&apos;s Plan
-      </button>
+      </Link>
 
-      <button
-        type="button"
-        onClick={() => onTabChange("saved")}
-        className={`rounded-md px-4 py-1.5 text-[11px] font-medium ${
-          activeTab === "saved"
+      <Link
+        href="/my-plan/saved"
+        className={`rounded-md px-4 py-1.5 text-[11px] font-medium transition-colors ${
+          isSaved
             ? "bg-[#252A31] text-white"
-            : "text-[#757C87]"
+            : "text-[#757C87] hover:text-white"
         }`}
       >
         Saved
-      </button>
+      </Link>
     </div>
   );
 };
