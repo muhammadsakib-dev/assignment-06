@@ -4,7 +4,7 @@ import Link from "next/link";
 const Hero = () => {
   return (
     <section className="flex min-h-[calc(100vh-88px)] items-center px-4 py-6 sm:px-6 lg:px-8">
-      <div className="relative mx-auto flex w-full max-w-[1450px] overflow-hidden rounded-3xl border border-[#25282F] bg-[#15171D]">
+      <div className="relative mx-auto flex w-full max-w-362.5 overflow-hidden rounded-3xl border border-[#25282F] bg-[#15171D]">
         {/* Left Content */}
         <div className="flex w-full items-center px-8 py-14 sm:px-12 lg:w-[58%] lg:px-16">
           <div className="max-w-2xl">
@@ -50,7 +50,7 @@ const Hero = () => {
             src="/banner.png"
             alt="FitLog workout"
             fill
-            className="object-contain object-right-bottom"
+            className="object-contain object-bottom-right"
             sizes="288px"
           />
         </div>

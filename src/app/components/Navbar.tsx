@@ -1,20 +1,14 @@
 "use client";
-
+import { useFitLog } from "@/context/FitLogContext";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 const Navbar = () => {
+    
   const pathname = usePathname();
-
-  // Demo counters
-  const [planCount] = useState(0);
-  const [savedCount] = useState(0);
-
-  const navItemStyle =
-    "btn btn-ghost rounded-full px-5 text-sm font-medium";
-
+  const { planIds, savedIds } = useFitLog();
+  const navItemStyle = "btn btn-ghost rounded-full px-5 text-sm font-medium";
   const activeNavStyle =
     "bg-[#1A2312] text-[var(--primary-color)] hover:bg-[#1A2312]";
 
@@ -30,7 +24,6 @@ const Navbar = () => {
           Workouts
         </Link>
       </li>
-
       <li>
         <Link
           href="/my-plan"
@@ -46,7 +39,7 @@ const Navbar = () => {
 
   return (
     <header className="border-t border-[#202124] bg-[#0C0D0F] text-[#A7A9B0]">
-      <div className="navbar mx-auto min-h-22 max-w-375 px-4 sm:px-6 lg:px-8">
+      <div className="navbar mx-auto min-h-22 max-w-375 px-4 sm:px-6 lg:px-8 ">
         {/* ==================== LEFT ==================== */}
         <div className="navbar-start">
           {/* Mobile Menu */}
@@ -117,7 +110,7 @@ const Navbar = () => {
             <span>Plan</span>
 
             <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-(--primary-color) px-1.5 text-xs font-bold text-black">
-              {planCount}
+              {planIds.length}
             </span>
           </Link>
 
@@ -129,7 +122,7 @@ const Navbar = () => {
             <span>Saved</span>
 
             <span className="flex h-6 min-w-6 items-center justify-center rounded-full border border-[#34363C] px-1.5 text-xs text-[#A7A9B0]">
-              {savedCount}
+              {savedIds.length}
             </span>
           </Link>
         </div>

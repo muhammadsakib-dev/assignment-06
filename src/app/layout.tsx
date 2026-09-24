@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Inter, Oswald } from "next/font/google";
 import Navbar from "./components/Navbar";
-
+import Footer from "./components/Footer";
+import FitLogProvider from "@/context/FitLogContext";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -34,10 +35,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className={`${inter.variable} ${oswald.variable} min-h-full flex flex-col`}>
-        <Navbar />
-        <div>{children}</div>
-        </body>
+      <body
+        className={`${inter.variable} ${oswald.variable} min-h-full flex flex-col`}
+      >
+        <FitLogProvider>
+          <Navbar />
+          <div>{children}</div>
+          <Footer />
+        </FitLogProvider>
+      </body>
     </html>
   );
 }
